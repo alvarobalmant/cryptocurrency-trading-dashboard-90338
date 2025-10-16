@@ -10,40 +10,50 @@ export const useEmployeeAvailability = (employeeId?: string, date?: Date) => {
   const dateStr = date ? format(date, 'yyyy-MM-dd') : '';
 
   return useQuery({
-    queryKey: ['employee-availability', employeeId, dateStr],
+    queryKey: ['employee-availability-map', employeeId, dateStr],
     queryFn: async () => {
       if (!employeeId || !dateStr) {
         throw new Error('Employee ID and date are required');
       }
 
-      // Tentar consultar o cache diretamente
+      // First, try to fetch from cache (availability_map field)
       const { data, error } = await supabase
-        .from('employee_availability_cache')
-        .select('availability_blocks')
+        .from('employee_daily_availability')
+        .select('availability_map')
         .eq('employee_id', employeeId)
         .eq('date', dateStr)
         .maybeSingle();
 
       if (error) throw error;
 
-      // Se existir no cache, retornar
-      if (data?.availability_blocks) {
-        return data.availability_blocks as AvailabilityBlocks;
+      // If exists and not null, return it
+      if (data?.availability_map) {
+        return data.availability_map as AvailabilityBlocks;
       }
 
-      // Se não existir, chamar RPC para calcular e cachear
-      const { data: rpcData, error: rpcError } = await supabase
-        .rpc('get_employee_availability', {
+      // If doesn't exist or is null, generate it
+      const { error: refreshError } = await supabase
+        .rpc('refresh_availability_map', {
           p_employee_id: employeeId,
           p_date: dateStr,
         });
 
-      if (rpcError) throw rpcError;
+      if (refreshError) throw refreshError;
+
+      // Fetch again after generation
+      const { data: newData, error: newError } = await supabase
+        .from('employee_daily_availability')
+        .select('availability_map')
+        .eq('employee_id', employeeId)
+        .eq('date', dateStr)
+        .single();
+
+      if (newError) throw newError;
       
-      return (rpcData || {}) as AvailabilityBlocks;
+      return (newData?.availability_map || {}) as AvailabilityBlocks;
     },
     enabled: !!employeeId && !!date,
-    staleTime: 5 * 60 * 1000, // Cache por 5 minutos no React Query
-    gcTime: 10 * 60 * 1000, // Manter em memória por 10 minutos
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };

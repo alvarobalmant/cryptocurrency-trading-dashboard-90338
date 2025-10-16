@@ -1258,6 +1258,7 @@ export type Database = {
       }
       employee_daily_availability: {
         Row: {
+          availability_map: Json | null
           availability_slots: Json
           barbershop_id: string
           computed_at: string
@@ -1273,6 +1274,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          availability_map?: Json | null
           availability_slots?: Json
           barbershop_id: string
           computed_at?: string
@@ -1288,6 +1290,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          availability_map?: Json | null
           availability_slots?: Json
           barbershop_id?: string
           computed_at?: string
@@ -3454,6 +3457,10 @@ export type Database = {
         Args: { p_barbershop_id: string }
         Returns: number
       }
+      build_availability_map: {
+        Args: { p_date: string; p_employee_id: string }
+        Returns: Json
+      }
       calculate_available_stock: {
         Args: {
           p_barbershop_id?: string
@@ -3934,6 +3941,10 @@ export type Database = {
       }
       recalculate_commissions_summary: {
         Args: { p_barbershop_id: string; p_employee_id?: string }
+        Returns: undefined
+      }
+      refresh_availability_map: {
+        Args: { p_date: string; p_employee_id: string }
         Returns: undefined
       }
       refresh_daily_availability: {
