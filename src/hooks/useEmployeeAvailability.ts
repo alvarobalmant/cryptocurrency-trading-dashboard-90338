@@ -16,6 +16,8 @@ export const useEmployeeAvailability = (employeeId?: string, date?: Date) => {
         throw new Error('Employee ID and date are required');
       }
 
+      console.log('🔍 [Availability] Fetching for employee:', employeeId, 'date:', dateStr);
+
       // First, try to fetch from cache (availability_map field)
       const { data, error } = await supabase
         .from('employee_daily_availability')
@@ -24,21 +26,34 @@ export const useEmployeeAvailability = (employeeId?: string, date?: Date) => {
         .eq('date', dateStr)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ [Availability] Error fetching cache:', error);
+        throw error;
+      }
+
+      console.log('📦 [Availability] Cache data:', data);
 
       // If exists and not null, return it
-      if (data?.availability_map) {
+      if (data?.availability_map && Object.keys(data.availability_map).length > 0) {
+        console.log('✅ [Availability] Returning from cache, keys:', Object.keys(data.availability_map).length);
         return data.availability_map as AvailabilityBlocks;
       }
 
+      console.log('⚡ [Availability] Cache empty/null, calling refresh_availability_map...');
+
       // If doesn't exist or is null, generate it
-      const { error: refreshError } = await supabase
+      const { data: rpcData, error: refreshError } = await supabase
         .rpc('refresh_availability_map', {
           p_employee_id: employeeId,
           p_date: dateStr,
         });
 
-      if (refreshError) throw refreshError;
+      if (refreshError) {
+        console.error('❌ [Availability] Error calling RPC:', refreshError);
+        throw refreshError;
+      }
+
+      console.log('📡 [Availability] RPC response:', rpcData);
 
       // Fetch again after generation
       const { data: newData, error: newError } = await supabase
@@ -48,7 +63,13 @@ export const useEmployeeAvailability = (employeeId?: string, date?: Date) => {
         .eq('date', dateStr)
         .single();
 
-      if (newError) throw newError;
+      if (newError) {
+        console.error('❌ [Availability] Error fetching after refresh:', newError);
+        throw newError;
+      }
+
+      console.log('🔄 [Availability] Data after refresh:', newData);
+      console.log('📊 [Availability] Final map keys:', Object.keys(newData?.availability_map || {}).length);
       
       return (newData?.availability_map || {}) as AvailabilityBlocks;
     },
