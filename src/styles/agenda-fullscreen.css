@@ -1,0 +1,362 @@
+/* Estilos para agenda em tela cheia e modo normal - Padrões Amazon UI/UX */
+
+/* Esconde elementos desnecessários em tela cheia */
+.agenda-fullscreen .navbar,
+.agenda-fullscreen .sidebar,
+.agenda-fullscreen .breadcrumb,
+.agenda-fullscreen .footer {
+  display: none !important;
+}
+
+/* Estilos unificados para agenda - usando mesma lógica para ambos os modos */
+.agenda-normal,
+.agenda-fullscreen {
+  /* Container principal da agenda */
+  max-width: 100%;
+  position: relative;
+  background: #f8fafc;
+}
+
+.agenda-normal .timeline-container,
+.agenda-fullscreen .timeline-container {
+  min-width: 600px; /* Largura mínima para evitar elementos sobrepostos */
+  width: 100%;
+  position: relative;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Container do viewport da agenda em tela cheia */
+.agenda-fullscreen .flex-1.overflow-hidden {
+  position: relative !important;
+  overflow: auto !important; /* FORÇA O SCROLL QUANDO NECESSÁRIO */
+  display: flex !important;
+  flex-direction: column !important;
+  /* IMPORTANTE: Cria contexto de empilhamento para sticky funcionar */
+  z-index: 1 !important;
+  /* GARANTE QUE O STICKY FUNCIONA EM TODOS OS ZOOMS */
+  contain: none !important;
+}
+
+/* Container interno que permite scroll - padrão Amazon */
+.agenda-fullscreen .timeline-container {
+  /* Remove overflow daqui - será controlado pelo container pai */
+  overflow: visible !important;
+  height: 100% !important;
+  width: 100% !important;
+  /* Garante que pode expandir além dos limites do pai */
+  min-width: max-content !important;
+}
+
+.agenda-normal .timeline-container {
+  overflow: hidden;
+}
+
+.agenda-normal .timeline-grid,
+.agenda-fullscreen .timeline-grid {
+  min-width: 600px;
+  width: 100%;
+}
+
+/* Grid da agenda que cresce com zoom */
+.agenda-fullscreen .timeline-grid {
+  /* DIMENSÕES DINÂMICAS QUE FORÇAM OVERFLOW */
+  width: max-content !important;
+  min-width: 1200px !important; /* Largura base maior que viewport */
+  height: max-content !important;
+  
+  /* Permite que o conteúdo seja "scrollável" */
+  position: relative !important;
+}
+
+.agenda-normal .timeline-header,
+.agenda-fullscreen .timeline-header {
+  position: sticky;
+  top: 0;
+  z-index: 25;
+  background: white;
+  border-bottom: 2px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* IMPORTANTE: Usar FLEX layout para ambos os modos para manter o posicionamento correto dos agendamentos */
+.agenda-normal .timeline-columns,
+.agenda-fullscreen .timeline-columns {
+  display: flex;
+  border-top: 1px solid #e2e8f0;
+}
+
+.agenda-normal .time-column,
+.agenda-fullscreen .time-column {
+  background: #fafbfc;
+  position: sticky;
+  left: 0;
+  z-index: 15;
+  border-right: 2px solid #e2e8f0;
+  font-weight: 500;
+  color: #475569;
+  flex-shrink: 0;
+  width: 64px; /* 64px = w-16 no modo normal */
+}
+
+/* Largura específica para tela cheia */
+.agenda-fullscreen .time-column {
+  width: 80px; /* 80px = w-20 no modo tela cheia */
+}
+
+.agenda-normal .employee-column,
+.agenda-fullscreen .employee-column {
+  background: white;
+  position: relative;
+  flex: 1;
+  border-right: 1px solid #e2e8f0;
+}
+
+/* Scroll horizontal suave para modo normal */
+.agenda-normal::-webkit-scrollbar {
+  height: 8px;
+}
+
+.agenda-normal::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.agenda-normal::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.agenda-normal::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Melhora a scrollbar em tela cheia */
+.agenda-fullscreen ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.agenda-fullscreen ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.agenda-fullscreen ::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.agenda-fullscreen ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+.agenda-fullscreen ::-webkit-scrollbar-corner {
+  background: #f1f5f9;
+}
+
+/* Animações suaves para transições */
+.agenda-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Melhorias nos controles de zoom estilo Amazon */
+.zoom-controls {
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+}
+
+.zoom-controls:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* Botões com estilo Amazon */
+.amazon-button {
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  border: 1px solid #d1d5db;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.amazon-button:hover {
+  background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+  border-color: #9ca3af;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.amazon-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Seletores com estilo Amazon */
+.amazon-select {
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  border: 1px solid #d1d5db;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.amazon-select:hover {
+  border-color: #9ca3af;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.amazon-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+/* Indicador de drag melhorado */
+.drag-indicator {
+  background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.drag-indicator:hover {
+  background: linear-gradient(145deg, #f1f5f9, #e2e8f0);
+  color: #475569;
+}
+
+/* Cursor personalizado para drag */
+.cursor-grab {
+  cursor: grab;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+}
+
+.cursor-grabbing {
+  cursor: grabbing;
+  cursor: -webkit-grabbing;
+  cursor: -moz-grabbing;
+}
+
+/* Animação de loading estilo Amazon */
+.amazon-loading {
+  animation: amazon-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes amazon-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Melhorias na grade de horários */
+.time-grid-row:hover {
+  background: linear-gradient(90deg, #f8fafc, #ffffff, #f8fafc);
+  transition: background 0.2s ease;
+}
+
+/* Tooltips estilo Amazon */
+.amazon-tooltip {
+  background: #1f2937;
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+/* Responsividade aprimorada */
+@media (max-width: 768px) {
+  .agenda-fullscreen .zoom-controls {
+    display: none !important;
+  }
+  
+  .agenda-fullscreen .drag-indicator {
+    display: none !important;
+  }
+  
+  /* Ajustes específicos para modo normal em dispositivos móveis */
+  .agenda-normal .time-column {
+    width: 60px;
+  }
+  
+  .agenda-normal .employee-column {
+    min-width: 100px;
+  }
+  
+  .agenda-normal .appointment-block {
+    font-size: 0.65rem;
+    padding: 2px 4px;
+    min-height: 18px;
+  }
+  
+  .agenda-normal .time-slot {
+    height: 35px;
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .agenda-normal .time-column {
+    width: 50px;
+  }
+  
+  .agenda-normal .employee-column {
+    min-width: 80px;
+  }
+  
+  .agenda-normal .appointment-block {
+    font-size: 0.6rem;
+    padding: 1px 3px;
+    min-height: 16px;
+  }
+  
+  .agenda-normal .time-slot {
+    height: 30px;
+    font-size: 0.6rem;
+  }
+}
+
+/* Melhorias de acessibilidade */
+.agenda-fullscreen *:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Animação de entrada em tela cheia */
+.fullscreen-enter {
+  animation: fullscreen-fade-in 0.3s ease-out;
+}
+
+@keyframes fullscreen-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animação de saída da tela cheia */
+.fullscreen-exit {
+  animation: fullscreen-fade-out 0.3s ease-in;
+}
+
+@keyframes fullscreen-fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}

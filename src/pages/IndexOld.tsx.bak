@@ -1,0 +1,175 @@
+import { useEffect, useState } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Scissors, Calendar, Users, BarChart3 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+const Index = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [checking, setChecking] = useState(false);
+
+  useEffect(() => {
+    const checkUserType = async () => {
+      // CRITICAL: Só verifica tipo de usuário se estiver EXATAMENTE na página inicial 
+      // e não há interferência com booking ou outras rotas
+      if (!loading && user && location.pathname === '/' && !checking) {
+        console.log('🔍 Index: Checking user type for:', user.email || user.phone);
+        setChecking(true);
+        try {
+          // FIXED: Se o usuário não tem email (cliente via telefone), 
+          // NÃO force permanência - deixe ele navegar livremente
+          if (!user.email) {
+            console.log('👤 Index: Cliente autenticado via telefone detectado, permitindo navegação livre');
+            setChecking(false);
+            return;
+          }
+
+          // SECURE: Use security definer function to check barbershop ownership
+          const { data: barbershops } = await supabase.rpc('get_safe_barbershops_list', {
+            user_id_param: user.id
+          });
+
+          if (barbershops && barbershops.length > 0) {
+            navigate('/dashboard', { replace: true });
+            return;
+          }
+
+          // Verificar se é um funcionário ativo (só para usuários com email)
+          const { data: employee } = await supabase
+            .from('employees')
+            .select('slug')
+            .eq('email', user.email)
+            .eq('status', 'active')
+            .single();
+
+          if (employee?.slug) {
+            navigate(`/employees/${employee.slug}`, { replace: true });
+            return;
+          }
+
+          // Se chegou até aqui, é um cliente autenticado com email
+          console.log('Cliente autenticado detectado, permanece na página inicial');
+        } catch (error) {
+          console.error('Erro ao verificar tipo de usuário:', error);
+        } finally {
+          setChecking(false);
+        }
+      }
+    };
+
+    checkUserType();
+  }, [user, loading, navigate, checking, location.pathname]);
+
+  if (loading || checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="text-center">
+          <Scissors className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-accent/10">
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 py-16 text-center">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-center mb-6">
+            <div className="bg-primary text-primary-foreground rounded-full p-4">
+              <Scissors className="h-12 w-12" />
+            </div>
+          </div>
+          
+          <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            BarberHive
+          </h1>
+          
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            O sistema completo para gerenciar sua barbearia. 
+            Agende clientes, controle horários e faça sua barbearia crescer com profissionalismo.
+          </p>
+          
+          <div className="flex gap-4 justify-center">
+            <Link to="/auth">
+              <Button size="lg" className="px-8">
+                Começar Agora
+              </Button>
+            </Link>
+            <Button variant="outline" size="lg" className="px-8">
+              Ver Demo
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold mb-4">Tudo que sua barbearia precisa</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Funcionalidades pensadas especialmente para barbeiros e donos de barbearias
+          </p>
+        </div>
+        
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <Card className="text-center hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <Calendar className="h-12 w-12 mx-auto text-primary mb-4" />
+              <CardTitle>Agendamento Online</CardTitle>
+              <CardDescription>
+                Sistema completo de agendamentos com notificações automáticas
+              </CardDescription>
+            </CardHeader>
+          </Card>
+          
+          <Card className="text-center hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <Users className="h-12 w-12 mx-auto text-primary mb-4" />
+              <CardTitle>Gestão de Clientes</CardTitle>
+              <CardDescription>
+                Cadastro completo de clientes com histórico de serviços
+              </CardDescription>
+            </CardHeader>
+          </Card>
+          
+          <Card className="text-center hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <BarChart3 className="h-12 w-12 mx-auto text-primary mb-4" />
+              <CardTitle>Relatórios</CardTitle>
+              <CardDescription>
+                Acompanhe o desempenho da sua barbearia com relatórios detalhados
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="container mx-auto px-4 py-16 text-center">
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle className="text-2xl">Pronto para começar?</CardTitle>
+            <CardDescription>
+              Crie sua conta grátis e configure sua barbearia em minutos
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link to="/auth">
+              <Button size="lg" className="px-8">
+                Criar Conta Grátis
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </section>
+    </div>
+  );
+};
+
+export default Index;

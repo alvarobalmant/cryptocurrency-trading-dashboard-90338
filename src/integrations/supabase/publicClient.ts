@@ -1,0 +1,22 @@
+import { createClient } from '@supabase/supabase-js';
+import type { Database } from './types';
+
+// Public (anon) Supabase client that NEVER attaches a user session.
+// Use this for public read access (e.g., booking pages) to bypass RLS filters
+// that might hide rows for authenticated users.
+const SUPABASE_URL = "https://oapyqafknhuvmuqumrcn.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hcHlxYWZrbmh1dm11cXVtcmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3Mjc1NjYsImV4cCI6MjA3NDMwMzU2Nn0.oUTY-zQ6I8VoVnROyFDRKv10Yih_HafLQei2ZwdInIw";
+
+export const supabasePublic = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false,
+  },
+  global: {
+    headers: {
+      // Ensure no Authorization header is sent so RLS treats requests as anon
+      Authorization: '',
+    },
+  },
+});
