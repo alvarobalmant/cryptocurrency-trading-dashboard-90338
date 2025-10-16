@@ -3561,6 +3561,14 @@ export type Database = {
         Args: { p_date: string; p_employee_id: string }
         Returns: Json
       }
+      compute_daily_availability_debug: {
+        Args: { p_date: string; p_employee_id: string }
+        Returns: {
+          data: Json
+          info: string
+          step: string
+        }[]
+      }
       create_client_profile_from_existing: {
         Args: {
           p_barbershop_id: string
